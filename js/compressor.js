@@ -3,10 +3,11 @@
 const Compressor = {
     getOptions(qualityLevel) {
         // qualityLevel: 0 (Low), 1 (Medium), 2 (High)
+        const hasWorker = typeof Worker !== 'undefined';
         const presets = {
-            0: { maxSizeMB: 0.3, initialQuality: 0.4, maxWidthOrHeight: 1280, useWebWorker: true },
-            1: { maxSizeMB: 1.0, initialQuality: 0.7, maxWidthOrHeight: 1920, useWebWorker: true },
-            2: { maxSizeMB: 2.0, initialQuality: 0.9, maxWidthOrHeight: 2560, useWebWorker: true }
+            0: { maxSizeMB: 0.3, initialQuality: 0.4, maxWidthOrHeight: 1280, useWebWorker: hasWorker },
+            1: { maxSizeMB: 1.0, initialQuality: 0.7, maxWidthOrHeight: 1920, useWebWorker: hasWorker },
+            2: { maxSizeMB: 2.0, initialQuality: 0.9, maxWidthOrHeight: 2560, useWebWorker: hasWorker }
         };
         return presets[qualityLevel] || presets[1];
     },

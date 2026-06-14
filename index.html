@@ -12,6 +12,11 @@
     <meta property="og:title" content="CompressIt - Free Secure Image Compressor">
     <meta property="og:description" content="Reduce image size instantly without uploading to any server. 100% secure and private.">
     <meta property="og:url" content="https://compressit.vercel.app/">
+    <meta property="og:image" content="assets/og-image.png">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/favicon-32.png">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
     
     <!-- Use Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -28,8 +33,9 @@
             <section class="settings-panel">
                 <div class="setting-group">
                     <label for="quality-slider">Quality:</label>
-                    <input type="range" id="quality-slider" min="0" max="2" value="1" step="1">
-                    <div class="slider-labels">
+                    <input type="range" id="quality-slider" min="0" max="2" value="1" step="1"
+                           aria-label="Compression quality: 0 is Low, 1 is Medium, 2 is High">
+                    <div class="slider-labels" aria-hidden="true">
                         <span>Low</span>
                         <span>Medium</span>
                         <span>High</span>
@@ -37,11 +43,11 @@
                 </div>
                 <div class="setting-group">
                     <label for="format-select">Format:</label>
-                    <select id="format-select">
+                    <select id="format-select" aria-label="Output format for compressed images">
                         <option value="original">Keep Original</option>
                         <option value="image/jpeg">JPG</option>
                         <option value="image/png">PNG</option>
-                        <option value="image/webp">WebP</option>
+                        <option value="image/webp" id="webp-option">WebP</option>
                     </select>
                 </div>
             </section>
@@ -55,16 +61,17 @@
                     </svg>
                     <h2>Drag & Drop your images here</h2>
                     <p>or</p>
-                    <input type="file" id="file-input" multiple accept="image/*" class="visually-hidden">
-                    <label for="file-input" class="btn btn-primary">Browse Files</label>
+                    <input type="file" id="file-input" multiple accept="image/*" class="visually-hidden"
+                           aria-label="Select image files to compress">
+                    <label for="file-input" class="btn btn-primary" role="button">Browse Files</label>
                 </div>
             </section>
 
             <section class="results-section" id="results-section" style="display: none;">
                 <div class="summary-bar">
-                    <span id="summary-text">0 images loaded</span>
-                    <button id="download-all-btn" class="btn btn-success" disabled>Download All</button>
-                    <button id="clear-all-btn" class="btn btn-ghost">Clear</button>
+                    <span id="summary-text" aria-live="polite">0 images loaded</span>
+                    <button id="download-all-btn" class="btn btn-success" disabled aria-label="Download all compressed images as ZIP">Download All</button>
+                    <button id="clear-all-btn" class="btn btn-ghost" aria-label="Clear all images">Clear</button>
                 </div>
                 <div class="file-list" id="file-list">
                     <!-- File cards will be rendered here -->
@@ -86,7 +93,17 @@
                     <p style="color: var(--text-secondary); font-size: 0.95rem;">Yes! Once you have loaded this page, you can disconnect from the internet and continue compressing images. Everything runs locally on your device.</p>
                 </div>
             </section>
+
+            <!-- Ad Slots (reserved, hidden until AdSense approval) Phase 13 -->
+            <aside class="ad-slot ad-slot-footer" id="ad-slot-footer" aria-hidden="true" style="display:none;">
+                <!-- AdSense footer ad will go here -->
+            </aside>
         </main>
+
+        <!-- Sidebar Ad Slot (reserved, Phase 13) -->
+        <aside class="ad-slot ad-slot-sidebar" id="ad-slot-sidebar" aria-hidden="true" style="display:none;">
+            <!-- AdSense sidebar ad will go here -->
+        </aside>
     </div>
 
     <!-- Vendor Libraries (Self-hosted for privacy/security) -->

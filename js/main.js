@@ -44,6 +44,16 @@ document.addEventListener('DOMContentLoaded', () => {
         AppState.files.clear();
         UI.clearAll();
     });
+
+    // 5. WebP support detection (Phase 4)
+    const canvas = document.createElement('canvas');
+    canvas.width = 1; canvas.height = 1;
+    const webpSupported = canvas.toDataURL('image/webp').startsWith('data:image/webp');
+    if (!webpSupported) {
+        const webpOpt = document.getElementById('webp-option');
+        if (webpOpt) webpOpt.remove();
+        console.info('WebP not supported in this browser — option hidden.');
+    }
 });
 
 function handleFiles(filesList) {
@@ -54,6 +64,17 @@ function handleFiles(filesList) {
     }
 
     Array.from(filesList).forEach(file => {
+        // Phase 9: HEIC detection — not natively supported
+        if (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
+            const errMsg = document.createElement('div');
+            errMsg.textContent = `"${file.name}" is an HEIC/HEIF file. HEIC is not yet supported in v1 — please convert it to JPG first.`;
+            errMsg.style.cssText = 'color:#ef4444;padding:8px;border:1px solid #ef4444;border-radius:6px;margin:4px 0;font-size:0.875rem;';
+            document.getElementById('file-list').prepend(errMsg);
+            document.getElementById('results-section').style.display = 'block';
+            setTimeout(() => errMsg.remove(), 8000);
+            return;
+        }
+        
         // Phase 7: Error handling
         if (!file.type.startsWith('image/')) {
             alert(`File "${file.name}" is not an image and will be ignored.`);
