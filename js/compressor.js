@@ -22,7 +22,20 @@ const Compressor = {
         try {
             // 1. Compression
             const options = this.getOptions(parseInt(settings.quality), file);
-            let resultBlob = await imageCompression(file, options);
+            
+            // To prevent the library from forcing compressed files to be smaller than the original
+            // (which causes quality/size inversion and same-size results on small files),
+            // we wrap the file in a Blob and override its size property to a large value for small files.
+            const fileSizeMB = file.size / (1024 * 1024);
+            let fileToCompress = file;
+            if (fileSizeMB < 3.0) {
+                fileToCompress = new Blob([file], { type: file.type });
+                Object.defineProperty(fileToCompress, 'size', { value: 50 * 1024 * 1024 });
+                Object.defineProperty(fileToCompress, 'name', { value: file.name });
+                Object.defineProperty(fileToCompress, 'lastModified', { value: file.lastModified });
+            }
+
+            let resultBlob = await imageCompression(fileToCompress, options);
 
             // 2. Format Conversion
             if (settings.format !== 'original' && resultBlob.type !== settings.format) {
