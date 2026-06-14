@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompressIt - Free Secure Image Compressor</title>
+    <meta name="description" content="Compress images and reduce file size online for free. Your images never leave your device. 100% private, no upload needed. Best for WhatsApp, email, and web.">
+    <meta name="keywords" content="compress image online free, reduce image size for WhatsApp, image compressor no upload, image converter, webp, jpeg, png">
+    
+    <!-- Open Graph / Social -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="CompressIt - Free Secure Image Compressor">
+    <meta property="og:description" content="Reduce image size instantly without uploading to any server. 100% secure and private.">
+    <meta property="og:url" content="https://compressit.vercel.app/">
+    
+    <!-- Use Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>CompressIt</h1>
+            <p>Your images never leave your device. Fast, secure, and private.</p>
+        </header>
+
+        <main>
+            <section class="settings-panel">
+                <div class="setting-group">
+                    <label for="quality-slider">Quality:</label>
+                    <input type="range" id="quality-slider" min="0" max="2" value="1" step="1">
+                    <div class="slider-labels">
+                        <span>Low</span>
+                        <span>Medium</span>
+                        <span>High</span>
+                    </div>
+                </div>
+                <div class="setting-group">
+                    <label for="format-select">Format:</label>
+                    <select id="format-select">
+                        <option value="original">Keep Original</option>
+                        <option value="image/jpeg">JPG</option>
+                        <option value="image/png">PNG</option>
+                        <option value="image/webp">WebP</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="upload-zone" id="drop-zone">
+                <div class="upload-content">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    <h2>Drag & Drop your images here</h2>
+                    <p>or</p>
+                    <input type="file" id="file-input" multiple accept="image/*" class="visually-hidden">
+                    <label for="file-input" class="btn btn-primary">Browse Files</label>
+                </div>
+            </section>
+
+            <section class="results-section" id="results-section" style="display: none;">
+                <div class="summary-bar">
+                    <span id="summary-text">0 images loaded</span>
+                    <button id="download-all-btn" class="btn btn-success" disabled>Download All</button>
+                    <button id="clear-all-btn" class="btn btn-ghost">Clear</button>
+                </div>
+                <div class="file-list" id="file-list">
+                    <!-- File cards will be rendered here -->
+                </div>
+            </section>
+
+            <section class="faq-section" style="margin-top: 4rem; text-align: left; background-color: var(--surface-color); padding: 2rem; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem;">Frequently Asked Questions</h3>
+                <div style="margin-bottom: 1.25rem;">
+                    <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Is this safe to use for sensitive images?</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Yes, absolutely. CompressIt processes all images entirely in your web browser. Your photos are <strong>never</strong> uploaded to any server or sent over the internet.</p>
+                </div>
+                <div style="margin-bottom: 1.25rem;">
+                    <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">What is the maximum file size?</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">There is no hard limit, but we recommend keeping individual files under 25MB and batches under 30 images to ensure smooth performance in your browser.</p>
+                </div>
+                <div style="margin-bottom: 1.25rem;">
+                    <h4 style="font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">Does it work offline?</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">Yes! Once you have loaded this page, you can disconnect from the internet and continue compressing images. Everything runs locally on your device.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Vendor Libraries (Self-hosted for privacy/security) -->
+    <script src="js/vendor/jszip.min.js"></script>
+    <script src="js/vendor/browser-image-compression.js"></script>
+    
+    <!-- Application Scripts -->
+    <script src="js/ui.js"></script>
+    <script src="js/compressor.js"></script>
+    <script src="js/zipHandler.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
