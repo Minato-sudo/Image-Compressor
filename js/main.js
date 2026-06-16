@@ -56,15 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function handleFiles(filesList) {
+async function handleFiles(filesList) {
     if (filesList.length === 0) return;
 
-    if (AppState.files.size + filesList.length > 30) {
-        alert("For best performance, we recommend compressing up to 30 images at a time.");
-    }
-
+    // Filter valid files first
+    const validFiles = [];
     Array.from(filesList).forEach(file => {
-        // Phase 9: HEIC detection — not natively supported
         if (file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')) {
             const errMsg = document.createElement('div');
             errMsg.textContent = `"${file.name}" is an HEIC/HEIF file. HEIC is not yet supported in v1 — please convert it to JPG first.`;
@@ -75,34 +72,99 @@ function handleFiles(filesList) {
             return;
         }
         
-        // Phase 7: Error handling
         if (!file.type.startsWith('image/')) {
             alert(`File "${file.name}" is not an image and will be ignored.`);
             return;
         }
-
-        if (file.size > 25 * 1024 * 1024) {
-            alert(`File "${file.name}" is larger than 25MB. Compression may take a while.`);
-        }
-
-        const id = AppState.nextId++;
-        const fileState = {
-            id,
-            originalFile: file,
-            compressedBlob: null,
-            status: 'pending'
-        };
-        AppState.files.set(id, fileState);
-
-        UI.createCard(id, file);
-        
-        // Add event listeners for the new card buttons
-        document.getElementById(`btn-rm-${id}`).addEventListener('click', () => removeFile(id));
-        document.getElementById(`btn-dl-${id}`).addEventListener('click', () => downloadSingleFile(id));
-
-        // Start compression
-        compressFile(id);
+        validFiles.push(file);
     });
+
+    if (validFiles.length === 0) return;
+
+    // Auth Gating Check
+    if (!Auth.canCompress(validFiles.length)) return;
+    
+    // Auth logic increments the try count for guests
+    Auth.incrementFreeTries(validFiles.length);
+
+    // Warning for guest users with large batches
+    if (!Auth.user && AppState.files.size + validFiles.length > 30) {
+        alert("For best performance, we recommend compressing up to 30 images at a time. Sign up for unlimited robust batching.");
+    }
+
+    // Chunked Batch Processing Strategy for Logged-In Users with large quantities
+    if (Auth.user && validFiles.length > 50) {
+        await processInChunks(validFiles);
+    } else {
+        validFiles.forEach(file => {
+            if (file.size > 25 * 1024 * 1024) {
+                alert(`File "${file.name}" is larger than 25MB. Compression may take a while.`);
+            }
+
+            const id = AppState.nextId++;
+            const fileState = {
+                id,
+                originalFile: file,
+                compressedBlob: null,
+                status: 'pending'
+            };
+            AppState.files.set(id, fileState);
+
+            UI.createCard(id, file);
+            
+            // Add event listeners for the new card buttons
+            document.getElementById(`btn-rm-${id}`).addEventListener('click', () => removeFile(id));
+            document.getElementById(`btn-dl-${id}`).addEventListener('click', () => downloadSingleFile(id));
+
+            // Start compression
+            compressFile(id);
+        });
+    }
+}
+
+async function processInChunks(files) {
+    const CHUNK_SIZE = 50;
+    const totalChunks = Math.ceil(files.length / CHUNK_SIZE);
+    
+    const resultsSection = document.getElementById('results-section');
+    const summaryText = document.getElementById('summary-text');
+    const fileList = document.getElementById('file-list');
+    
+    resultsSection.style.display = 'block';
+    
+    for (let i = 0; i < totalChunks; i++) {
+        summaryText.textContent = `Processing chunk ${i + 1} of ${totalChunks} (Images ${i * CHUNK_SIZE + 1} to ${Math.min((i + 1) * CHUNK_SIZE, files.length)})...`;
+        fileList.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-secondary);"><div class="spinner" style="margin: 0 auto 1rem; width: 32px; height: 32px; border: 3px solid var(--border-color); border-top-color: var(--primary-color); border-radius: 50%; animation: spin 1s linear infinite;"></div><p>Compressing chunk in the background to save memory...</p></div>';
+        
+        const chunk = files.slice(i * CHUNK_SIZE, (i + 1) * CHUNK_SIZE);
+        const chunkState = new Map();
+        
+        const compressPromises = chunk.map(async (file, index) => {
+            const id = `chunk-${i}-${index}`;
+            try {
+                const compressedBlob = await Compressor.processFile(file, AppState.settings);
+                chunkState.set(id, {
+                    originalFile: file,
+                    compressedBlob: compressedBlob,
+                    status: 'done'
+                });
+            } catch (err) {
+                console.error("Failed to compress", file.name, err);
+            }
+        });
+        
+        await Promise.all(compressPromises);
+        
+        summaryText.textContent = `Downloading chunk ${i + 1} of ${totalChunks}...`;
+        await ZipHandler.downloadBatch(chunkState, AppState.settings.format, `CompressIt-Batch-${i + 1}.zip`);
+        
+        // Let JS garbage collect
+        await new Promise(resolve => setTimeout(resolve, 500));
+        chunkState.clear();
+    }
+    
+    summaryText.textContent = `Finished processing ${files.length} images!`;
+    fileList.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-secondary);">Batch processing complete. Your ZIP files have been downloaded successfully.</div>';
 }
 
 async function compressFile(id) {

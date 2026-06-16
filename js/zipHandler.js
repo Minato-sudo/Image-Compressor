@@ -9,7 +9,7 @@ const ZipHandler = {
         this.triggerDownload(blob, filename);
     },
 
-    async downloadBatch(filesMap, targetFormat) {
+    async downloadBatch(filesMap, targetFormat, zipFilename = 'compressed-images.zip') {
         const zip = new JSZip();
         let addedCount = 0;
 
@@ -37,7 +37,7 @@ const ZipHandler = {
         }
 
         const zipBlob = await zip.generateAsync({ type: 'blob' });
-        this.triggerDownload(zipBlob, 'compressed-images.zip');
+        this.triggerDownload(zipBlob, zipFilename);
     },
 
     triggerDownload(blob, filename) {
